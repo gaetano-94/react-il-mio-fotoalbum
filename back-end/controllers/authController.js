@@ -1,30 +1,46 @@
+const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 
-exports.register = async (req, res) => {
+const register = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const { username, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await prisma.user.create({
-    data: {
-      username,
-      password: hashedPassword,
-    },
-  });
-  res.json(user);
+
+  try {
+    const user = await prisma.user.create({
+      data: { username, password: hashedPassword },
+    });
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Registration failed' });
+  }
 };
 
-exports.login = async (req, res) => {
+const login = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const { username, password } = req.body;
-  const user = await prisma.user.findUnique({
-    where: { username },
-  });
-  if (!user) return res.status(400).json({ message: 'Invalid credentials' });
 
-  const isValid = await bcrypt.compare(password, user.password);
-  if (!isValid) return res.status(400).json({ message: 'Invalid credentials' });
-
-  const token = jwt.sign({ userId: user.id }, 'secret', { expiresIn: '1h' });
-  res.json({ token });
+  try {
+    const user = await prisma.user.findUnique({ where: { username } });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    const token = jwt.sign({ userId: user.id }, config.JWT_SECRET, {
+      expiresIn: '1h',
+    });
+    res.json({ token });
+  } catch (error) {
+    res.status(500).json({ error: 'Login failed' });
+  }
 };
+
+module.exports = { register, login };

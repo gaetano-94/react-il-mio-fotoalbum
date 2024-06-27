@@ -1,5 +1,4 @@
 const express = require('express');
-const router = express.Router();
 const {
   getAllFoto,
   getFotoById,
@@ -7,12 +6,15 @@ const {
   updateFoto,
   deleteFoto,
 } = require('../controllers/fotoController');
-const authenticateToken = require('../middlewares/authMiddleware');
+const { fotoValidator } = require('../validators/fotoValidators');
+const authMiddleware = require('../middlewares/authMiddleware');
 
-router.get('/', getAllFoto);
-router.get('/:id', getFotoById);
-router.post('/', authenticateToken, createFoto);
-router.put('/:id', authenticateToken, updateFoto);
-router.delete('/:id', authenticateToken, deleteFoto);
+const router = express.Router();
+
+router.get('/', authMiddleware, getAllFoto);
+router.get('/:id', authMiddleware, getFotoById);
+router.post('/', authMiddleware, fotoValidator, createFoto);
+router.put('/:id', authMiddleware, fotoValidator, updateFoto);
+router.delete('/:id', authMiddleware, deleteFoto);
 
 module.exports = router;

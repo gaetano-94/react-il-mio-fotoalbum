@@ -1,23 +1,55 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { validationResult } = require('express-validator');
 
-exports.getAllCategorie = async (req, res) => {
-  const categorie = await prisma.categoria.findMany();
-  res.json(categorie);
+const getAllCategorie = async (req, res) => {
+  try {
+    const categorie = await prisma.categoria.findMany();
+    res.json(categorie);
+  } catch (error) {
+    res.status(500).json({ error: 'Fetching categories failed' });
+  }
 };
 
-exports.createCategoria = async (req, res) => {
-  const { nome } = req.body;
-  const nuovaCategoria = await prisma.categoria.create({
-    data: { nome },
-  });
-  res.json(nuovaCategoria);
-};
-
-exports.deleteCategoria = async (req, res) => {
+const getCategoriaById = async (req, res) => {
   const { id } = req.params;
-  await prisma.categoria.delete({
-    where: { id: Number(id) },
-  });
-  res.json({ message: 'Categoria eliminata con successo' });
+  try {
+    const categoria = await prisma.categoria.findUnique({
+      where: { id: parseInt(id, 10) },
+    });
+    res.json(categoria);
+  } catch (error) {
+    res.status(500).json({ error: 'Fetching category failed' });
+  }
+};
+
+const createCategoria = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { nome } = req.body;
+
+  try {
+    const categoria = await prisma.categoria.create({ data: { nome } });
+    res.status(201).json(categoria);
+  } catch (error) {
+    res.status(500).json({ error: 'Creating category failed' });
+  }
+};
+
+const deleteCategoria = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await prisma.categoria.delete({ where: { id: parseInt(id, 10) } });
+    res.status(204).end();
+  } catch (error) {
+    res.status(500).json({ error: 'Deleting category failed' });
+  }
+};
+
+module.exports = {
+  getAllCategorie,
+  getCategoriaById,
+  createCategoria,
+  deleteCategoria,
 };

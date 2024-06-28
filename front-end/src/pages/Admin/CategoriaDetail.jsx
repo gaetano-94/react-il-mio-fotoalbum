@@ -1,50 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const CategoriaDetail = () => {
   const { id } = useParams();
-  const [categoria, setCategoria] = useState({ nome: '' });
+  const [categoria, setCategoria] = useState(null);
+  const [nome, setNome] = useState('');
 
   useEffect(() => {
     const fetchCategoria = async () => {
-      const result = await axios.get(
-        `http://localhost:3000/api/categorie/${id}`
-      );
-      setCategoria(result.data);
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/categorie/${id}`
+        );
+        setCategoria(response.data);
+        setNome(response.data.nome);
+      } catch (error) {
+        console.error('Errore nel recuperare la categoria:', error);
+      }
     };
     fetchCategoria();
   }, [id]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCategoria({ ...categoria, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleUpdateCategoria = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:3000/api/categorie/${id}`, categoria, {
-        headers: { Authorization: localStorage.getItem('token') },
-      });
-      // Success handling
+      await axios.put(`http://localhost:3000/api/categorie/${id}`, { nome });
+      // Redirect or show success message
     } catch (error) {
-      console.error('Update failed:', error);
+      console.error("Errore nell'aggiornamento della categoria:", error);
     }
   };
 
+  if (!categoria) return <div>Caricamento...</div>;
+
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Dettaglio Categoria</h1>
-      <input
-        type="text"
-        name="nome"
-        value={categoria.nome}
-        onChange={handleChange}
-        placeholder="Nome Categoria"
-      />
-      <button type="submit">Salva</button>
-    </form>
+    <div>
+      <h1>Dettagli Categoria</h1>
+      <form onSubmit={handleUpdateCategoria}>
+        <input
+          type="text"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          placeholder="Nome"
+          required
+        />
+        <button type="submit">Aggiorna Categoria</button>
+      </form>
+    </div>
   );
 };
 

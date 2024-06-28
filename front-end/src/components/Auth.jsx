@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { login } from '../api/authService';
 
 const Auth = () => {
   const [username, setUsername] = useState('');
@@ -8,11 +8,8 @@ const Auth = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        'http://localhost:3000/api/auth/login',
-        { username, password }
-      );
-      localStorage.setItem('token', response.data.token);
+      const response = await login(username, password);
+      localStorage.setItem('token', response.token);
       // Redirect or update UI
     } catch (error) {
       console.error('Login failed:', error);
@@ -27,12 +24,14 @@ const Auth = () => {
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         placeholder="Username"
+        required
       />
       <input
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"
+        required
       />
       <button type="submit">Login</button>
     </form>

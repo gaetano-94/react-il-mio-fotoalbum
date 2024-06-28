@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { getAllFoto } from '../../api/fotoService';
 
 const FotoList = () => {
   const [foto, setFoto] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const result = await axios.get('http://localhost:3000/api/foto');
-      setFoto(result.data);
+      const result = await getAllFoto();
+      setFoto(result);
     };
     fetchData();
   }, []);

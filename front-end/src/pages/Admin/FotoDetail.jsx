@@ -1,76 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const FotoDetail = () => {
   const { id } = useParams();
-  const [foto, setFoto] = useState({
-    titolo: '',
-    descrizione: '',
-    immagine: '',
-    visibile: false,
-    categorie: [],
-  });
+  const [foto, setFoto] = useState(null);
+  const [titolo, setTitolo] = useState('');
 
   useEffect(() => {
     const fetchFoto = async () => {
-      const result = await axios.get(`http://localhost:3000/api/foto/${id}`);
-      setFoto(result.data);
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/foto/${id}`
+        );
+        setFoto(response.data);
+        setTitolo(response.data.titolo);
+      } catch (error) {
+        console.error('Errore nel recuperare la foto:', error);
+      }
     };
     fetchFoto();
   }, [id]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFoto({ ...foto, [name]: type === 'checkbox' ? checked : value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleUpdateFoto = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:3000/api/foto/${id}`, foto, {
-        headers: { Authorization: localStorage.getItem('token') },
-      });
-      // Success handling
+      await axios.put(`http://localhost:3000/api/foto/${id}`, { titolo });
+      // Redirect or show success message
     } catch (error) {
-      console.error('Update failed:', error);
+      console.error("Errore nell'aggiornamento della foto:", error);
     }
   };
 
+  if (!foto) return <div>Caricamento...</div>;
+
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Dettaglio Foto</h1>
-      <input
-        type="text"
-        name="titolo"
-        value={foto.titolo}
-        onChange={handleChange}
-        placeholder="Titolo"
-      />
-      <textarea
-        name="descrizione"
-        value={foto.descrizione}
-        onChange={handleChange}
-        placeholder="Descrizione"
-      ></textarea>
-      <input
-        type="text"
-        name="immagine"
-        value={foto.immagine}
-        onChange={handleChange}
-        placeholder="Immagine URL"
-      />
-      <label>
-        Visibile:
+    <div>
+      <h1>Dettagli Foto</h1>
+      <form onSubmit={handleUpdateFoto}>
         <input
-          type="checkbox"
-          name="visibile"
-          checked={foto.visibile}
-          onChange={handleChange}
+          type="text"
+          value={titolo}
+          onChange={(e) => setTitolo(e.target.value)}
+          placeholder="Titolo"
+          required
         />
-      </label>
-      <button type="submit">Salva</button>
-    </form>
+        <button type="submit">Aggiorna Foto</button>
+      </form>
+    </div>
   );
 };
 

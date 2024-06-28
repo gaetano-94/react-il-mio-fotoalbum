@@ -8,6 +8,7 @@ const Navbar = () => {
       <Link to="/login">Login</Link>
       <Link to="/admin/foto">Admin Foto</Link>
       <Link to="/admin/categorie">Admin Categorie</Link>
+      <Link to="/contact">Contact</Link>
     </nav>
   );
 };

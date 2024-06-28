@@ -13,7 +13,7 @@ const FotoList = () => {
   }, []);
 
   return (
-    <div>
+    <div className="text">
       <h1>Lista Foto</h1>
       <ul>
         {foto.map((f) => (

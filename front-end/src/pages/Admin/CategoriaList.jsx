@@ -13,7 +13,7 @@ const CategoriaList = () => {
   }, []);
 
   return (
-    <div>
+    <div className="text">
       <h1>Lista Categorie</h1>
       <ul>
         {categorie.map((c) => (

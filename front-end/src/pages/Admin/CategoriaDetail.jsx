@@ -32,10 +32,10 @@ const CategoriaDetail = () => {
     }
   };
 
-  if (!categoria) return <div>Caricamento...</div>;
+  if (!categoria) return <div className="loading">Caricamento...</div>;
 
   return (
-    <div>
+    <div className="categoriaDetail">
       <h1>Dettagli Categoria</h1>
       <form onSubmit={handleUpdateCategoria}>
         <input

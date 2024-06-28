@@ -21,7 +21,6 @@ const App = () => {
         <Route path="/admin/categorie" exact component={CategoriaList} />
         <Route path="/admin/categorie/:id" component={CategoriaDetail} />
         <Route path="/contact" component={ContactForm} />
-        {/* Aggiungi altre rotte qui se necessario */}
       </Switch>
     </Router>
   );

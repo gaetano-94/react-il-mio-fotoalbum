@@ -32,10 +32,10 @@ const FotoDetail = () => {
     }
   };
 
-  if (!foto) return <div>Caricamento...</div>;
+  if (!foto) return <div className="loading">Caricamento...</div>;
 
   return (
-    <div>
+    <div className="fotoDetail">
       <h1>Dettagli Foto</h1>
       <form onSubmit={handleUpdateFoto}>
         <input
